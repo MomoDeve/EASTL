@@ -1,0 +1,3 @@
+[submodule "EABase"]
+	path = EABase
+	url = https://github.com/MomoDeve/EABase
