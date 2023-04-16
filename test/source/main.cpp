@@ -145,6 +145,7 @@ int EAMain(int argc, char* argv[])
 	testSuite.AddTest("VectorSet",				TestVectorSet);
 	testSuite.AddTest("AtomicBasic",			TestAtomicBasic);
 	testSuite.AddTest("AtomicAsm",			    TestAtomicAsm);
+	testSuite.AddTest("Bitcast",				TestBitcast);
 
 
 	nErrorCount += testSuite.Run();

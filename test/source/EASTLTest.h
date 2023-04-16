@@ -82,6 +82,7 @@ int TestVectorMap();
 int TestVectorSet();
 int TestAtomicBasic();
 int TestAtomicAsm();
+int TestBitcast();
 
 
 // Now enable warnings as desired.
@@ -1259,6 +1260,8 @@ public:
 		totalAllocatedMemory  = 0;
 		activeAllocatedMemory = 0;
 	}
+
+	virtual ~CountingAllocator() = default;
 
 	static uint64_t activeAllocCount;
 	static uint64_t totalAllocCount;

@@ -18,10 +18,15 @@ struct IntStruct
 	int data;
 };
 
+#if defined(EA_COMPILER_HAS_THREE_WAY_COMPARISON)
+auto operator<=>(const IntStruct& lhs, const IntStruct& rhs) { return lhs.data <=> rhs.data; }
+#else
 bool operator<(const IntStruct& lhs, const IntStruct& rhs)
 	{ return lhs.data < rhs.data; }
+#endif
 bool operator==(const IntStruct& lhs, const IntStruct& rhs)
 	{ return lhs.data == rhs.data; }
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -476,6 +481,43 @@ int TestOptional()
 		VERIFY(o >= nullopt);
 	}
 
+	#if defined(EA_COMPILER_HAS_THREE_WAY_COMPARISON)
+	{
+		optional<IntStruct> o(in_place, 10);
+		optional<IntStruct> e;
+
+		VERIFY((o <=> IntStruct(42)) < 0);
+		VERIFY((o <=> IntStruct(2)) >= 0);
+		VERIFY((o <=> IntStruct(10)) >= 0);
+		VERIFY((e <=> o) < 0);
+		VERIFY((e <=> IntStruct(10)) < 0);
+
+		VERIFY((o <=> IntStruct(4)) > 0);
+		VERIFY(o <=> IntStruct(42) <= 0);
+
+		VERIFY((o <=> IntStruct(4)) >= 0);
+		VERIFY((o <=> IntStruct(10)) >= 0);
+		VERIFY((IntStruct(4) <=> o) <= 0);
+		VERIFY((IntStruct(10) <=> o) <= 0);
+
+		VERIFY((o <=> IntStruct(10)) == 0);
+		VERIFY((o->data <=> IntStruct(10).data) == 0);
+
+		VERIFY((o <=> IntStruct(11)) != 0);
+		VERIFY((o->data <=> IntStruct(11).data) != 0);
+
+		VERIFY((e <=> nullopt) == 0);
+		VERIFY((nullopt <=> e) == 0);
+
+		VERIFY((o <=> nullopt) != 0);
+		VERIFY((nullopt <=> o) != 0);
+		VERIFY((nullopt <=> o) < 0);
+		VERIFY((o <=> nullopt) > 0);
+		VERIFY((nullopt <=> o) <= 0);
+		VERIFY((o <=> nullopt) >= 0);
+	}
+	#endif
+
 	// hash 
 	{
 		{
@@ -536,13 +578,13 @@ int TestOptional()
 
 	// optional rvalue tests
 	{
-		VERIFY(*optional<int>(1)                          == 1);
-		VERIFY( optional<int>(1).value()                  == 1);
-		VERIFY( optional<int>(1).value_or(0xdeadf00d)     == 1);
-		VERIFY( optional<int>().value_or(0xdeadf00d)      == 0xdeadf00d);
-		VERIFY( optional<int>(1).has_value()              == true);
-		VERIFY( optional<int>().has_value()               == false);
-		VERIFY( optional<IntStruct>(in_place, 10)->data   == 10);
+		VERIFY(*optional<uint32_t>(1u)						== 1u);
+	    VERIFY(optional<uint32_t>(1u).value()				== 1u);
+	    VERIFY(optional<uint32_t>(1u).value_or(0xdeadf00d)	== 1u);
+	    VERIFY(optional<uint32_t>().value_or(0xdeadf00d)	== 0xdeadf00d);
+	    VERIFY(optional<uint32_t>(1u).has_value() == true);
+	    VERIFY(optional<uint32_t>().has_value() == false);
+		VERIFY( optional<IntStruct>(in_place, 10)->data		== 10);
 
 	}
 
@@ -611,7 +653,7 @@ int TestOptional()
 			copyCtorCalledWithUninitializedValue = moveCtorCalledWithUninitializedValue = false;
 			struct local
 			{
-				int val;
+				uint32_t val;
 				local()
 					: val(0xabcdabcd)
 				{}
